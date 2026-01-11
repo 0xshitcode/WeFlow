@@ -24,7 +24,7 @@ WeFlow 是一个**完全本地**的微信**实时**聊天记录查看、分析�
 <img src="https://img.shields.io/github/license/hicccc77/WeFlow?style=flat-square" alt="License">
 </a>
 <a href="https://t.me/+hn3QzNc4DbA0MzNl">
-<img src="https://img.shields.io/badge/Telegram-Join%20Group-26A69A?style=flat-square&logo=telegram&logoColor=white" alt="Telegram">
+<img src="https://img.shields.io/badge/Telegram%20交流群-点击加入-0088cc?style=flat-square&logo=telegram&logoColor=0088cc&labelColor=white" alt="Telegram">
 </a>
 </p>
 
