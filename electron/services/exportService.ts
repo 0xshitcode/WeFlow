@@ -1961,16 +1961,6 @@ class ExportService {
         ? await this.getGroupNicknamesForRoom(sessionId)
         : new Map<string, string>()
 
-      const contactCache = new Map<string, { success: boolean; contact?: any; error?: string }>()
-      const getContactCached = async (username: string) => {
-        if (contactCache.has(username)) {
-          return contactCache.get(username)!
-        }
-        const result = await wcdbService.getContact(username)
-        contactCache.set(username, result)
-        return result
-      }
-
       // ========== 阶段3：构建消息列表 ==========
       onProgress?.({
         current: 55,

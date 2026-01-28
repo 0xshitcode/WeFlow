@@ -1118,8 +1118,8 @@ function SettingsPage() {
 
       
       <div className="form-group">
-        <label>???????????</label>
-        <span className="form-hint">?????????????????? 1-3</span>
+        <label>{'\u9ed8\u8ba4\u5bfc\u51fa\u5e76\u53d1\u6570'}</label>
+        <span className="form-hint">{'\u540c\u65f6\u5bfc\u51fa\u7684\u4f1a\u8bdd\u6570\u91cf\uff0c\u5efa\u8bae 1-3'}</span>
         <input
           type="number"
           min={1}
@@ -1137,7 +1137,7 @@ function SettingsPage() {
             const clamped = Math.max(1, Math.min(Math.floor(exportDefaultConcurrency || 1), 6))
             setExportDefaultConcurrency(clamped)
             await configService.setExportDefaultConcurrency(clamped)
-            showMessage(`?????????????? ${clamped}`, true)
+            showMessage(`\u5df2\u66f4\u65b0\u5bfc\u51fa\u5e76\u53d1\u6570\u4e3a ${clamped}`, true)
           }}
         />
       </div>
