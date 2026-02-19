@@ -1335,6 +1335,55 @@ class ExportService {
     return this.formatPlainExportContent(content, localType, { exportVoiceAsText: false }, undefined, myWxid, senderWxid, isSend)
   }
 
+  private extractHtmlLinkCard(content: string, localType: number): { title: string; url: string } | null {
+    if (!content) return null
+
+    const normalized = this.normalizeAppMessageContent(content)
+    const isAppMessage = localType === 49 || normalized.includes('<appmsg') || normalized.includes('<msg>')
+    if (!isAppMessage) return null
+
+    const subType = this.extractXmlValue(normalized, 'type')
+    if (subType && subType !== '5' && subType !== '49') return null
+
+    const url = this.normalizeHtmlLinkUrl(this.extractXmlValue(normalized, 'url'))
+    if (!url) return null
+
+    const title = this.extractXmlValue(normalized, 'title') || this.extractXmlValue(normalized, 'des') || url
+    return { title, url }
+  }
+
+  private normalizeHtmlLinkUrl(rawUrl: string): string {
+    const value = (rawUrl || '').trim()
+    if (!value) return ''
+
+    const parseHttpUrl = (candidate: string): string => {
+      try {
+        const parsed = new URL(candidate)
+        if (parsed.protocol === 'http:' || parsed.protocol === 'https:') {
+          return parsed.toString()
+        }
+      } catch {
+        return ''
+      }
+      return ''
+    }
+
+    if (value.startsWith('//')) {
+      return parseHttpUrl(`https:${value}`)
+    }
+
+    const direct = parseHttpUrl(value)
+    if (direct) return direct
+
+    const hasScheme = /^[a-zA-Z][a-zA-Z0-9+.-]*:/.test(value)
+    const isDomainLike = /^[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}(?:[/:?#].*)?$/.test(value)
+    if (!hasScheme && isDomainLike) {
+      return parseHttpUrl(`https://${value}`)
+    }
+
+    return ''
+  }
+
   /**
    * 导出媒体文件到指定目录
    */
@@ -4343,6 +4392,8 @@ class ExportService {
           }
         }
 
+        const linkCard = this.extractHtmlLinkCard(msg.content, msg.localType)
+
         let mediaHtml = ''
         if (mediaItem?.kind === 'image') {
           const mediaPath = this.escapeAttribute(encodeURI(mediaItem.relativePath))
@@ -4357,9 +4408,11 @@ class ExportService {
           mediaHtml = `<video class="message-media video" controls preload="metadata"${posterAttr} src="${this.escapeAttribute(encodeURI(mediaItem.relativePath))}"></video>`
         }
 
-        const textHtml = textContent
-          ? `<div class="message-text">${this.renderTextWithEmoji(textContent).replace(/\r?\n/g, '<br />')}</div>`
-          : ''
+        const textHtml = linkCard
+          ? `<div class="message-text"><a class="message-link-card" href="${this.escapeAttribute(linkCard.url)}" target="_blank" rel="noopener noreferrer">${this.renderTextWithEmoji(linkCard.title).replace(/\r?\n/g, '<br />')}</a></div>`
+          : (textContent
+            ? `<div class="message-text">${this.renderTextWithEmoji(textContent).replace(/\r?\n/g, '<br />')}</div>`
+            : '')
         const senderNameHtml = isGroup
           ? `<div class="sender-name">${this.escapeHtml(senderName)}</div>`
           : ''
