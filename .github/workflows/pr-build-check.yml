@@ -1,0 +1,33 @@
+name: PR Build Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      target_ref:
+        description: "Branch or commit to validate"
+        required: true
+        default: "main"
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - name: Checkout target ref
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.target_ref }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22.12
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        run: npx tsc
+
+      - name: Frontend build
+        run: npx vite build
